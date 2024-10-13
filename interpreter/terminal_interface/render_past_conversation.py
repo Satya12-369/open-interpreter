@@ -1,7 +1,11 @@
-from ..utils.display_markdown_message import display_markdown_message
+"""
+This is all messed up.... Uses the old streaming structure.
+"""
+
+
 from .components.code_block import CodeBlock
 from .components.message_block import MessageBlock
-from .magic_commands import handle_magic_command
+from .utils.display_markdown_message import display_markdown_message
 
 
 def render_past_conversation(messages):
@@ -18,20 +22,20 @@ def render_past_conversation(messages):
             if active_block:
                 active_block.end()
                 active_block = None
-            print(">", chunk["message"])
+            print(">", chunk["content"])
             continue
 
         # Message
-        if "message" in chunk:
+        if chunk["type"] == "message":
             if active_block is None:
                 active_block = MessageBlock()
             if active_block.type != "message":
                 active_block.end()
                 active_block = MessageBlock()
-            active_block.message += chunk["message"]
+            active_block.message += chunk["content"]
 
         # Code
-        if "code" in chunk or "language" in chunk:
+        if chunk["type"] == "code":
             if active_block is None:
                 active_block = CodeBlock()
             if active_block.type != "code" or ran_code_block:
@@ -42,18 +46,18 @@ def render_past_conversation(messages):
             ran_code_block = False
             render_cursor = True
 
-        if "language" in chunk:
-            active_block.language = chunk["language"]
-        if "code" in chunk:
-            active_block.code += chunk["code"]
-        if "active_line" in chunk:
-            active_block.active_line = chunk["active_line"]
+            if "format" in chunk:
+                active_block.language = chunk["format"]
+            if "content" in chunk:
+                active_block.code += chunk["content"]
+            if "active_line" in chunk:
+                active_block.active_line = chunk["active_line"]
 
-        # Output
-        if "output" in chunk:
+        # Console
+        if chunk["type"] == "console":
             ran_code_block = True
             render_cursor = False
-            active_block.output += "\n" + chunk["output"]
+            active_block.output += "\n" + chunk["content"]
             active_block.output = active_block.output.strip()  # <- Aesthetic choice
 
         if active_block:

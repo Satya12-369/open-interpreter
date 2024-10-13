@@ -1,16 +1,9 @@
-import sys
+from .core.async_core import AsyncInterpreter
+from .core.computer.terminal.base_language import BaseLanguage
+from .core.core import OpenInterpreter
 
-from .core.core import Interpreter
-
-# This is done so when users `import interpreter`,
-# they get an instance of interpreter:
-
-sys.modules["interpreter"] = Interpreter()
-
-# **This is a controversial thing to do,**
-# because perhaps modules ought to behave like modules.
-
-# But I think it saves a step, removes friction, and looks good.
+interpreter = OpenInterpreter()
+computer = interpreter.computer
 
 #     ____                      ____      __                            __
 #    / __ \____  ___  ____     /  _/___  / /____  _________  ________  / /____  _____
